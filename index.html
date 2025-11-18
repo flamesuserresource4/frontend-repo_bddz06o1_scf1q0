@@ -1,18 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flames App</title>
-    <link rel="icon" type="image/x-icon" href="favicon.svg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-mono/style.css">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course Catalog – 50 Courses</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' rx='48' fill='%2318242F'/%3E%3Cpath d='M44 88l84-32 84 32-84 32-84-32zm24 40v40c0 8.84 35.82 24 60 24s60-15.16 60-24v-40' fill='none' stroke='%23A7F3D0' stroke-width='12' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M68 128c0 8.84 35.82 24 60 24s60-15.16 60-24' fill='none' stroke='%2381E6D9' stroke-width='12' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"/>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f172a; --panel2:#111827; --muted:#94a3b8; --text:#e2e8f0; --brand:#22d3ee; --brand-2:#a78bfa; --accent:#34d399; --chip:#1f2937; --card:#0b1324; --border:rgba(148,163,184,.15);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 800px at 20% -10%, rgba(34,211,238,.12), transparent 60%), radial-gradient(1000px 600px at 120% 10%, rgba(167,139,250,.10), transparent 60%), var(--bg);color:var(--text)}
+    .container{max-width:1100px;margin:0 auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg, var(--brand), var(--brand-2));box-shadow:0 8px 30px rgba(34,211,238,.25)}
+    h1{font-size:1.35rem;margin:0;font-weight:700;letter-spacing:.3px}
+    .muted{color:var(--muted)}
+
+    .toolbar{display:grid;grid-template-columns:1fr 160px 160px;gap:12px;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));padding:12px;border:1px solid var(--border);border-radius:14px;backdrop-filter:blur(6px)}
+    .input, .select{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:12px 14px;font-size:.95rem;outline:none}
+    .input::placeholder{color:#6b7280}
+
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+    .chip{padding:8px 12px;border:1px solid var(--border);background:var(--chip);color:#cbd5e1;border-radius:999px;font-size:.85rem;cursor:pointer;user-select:none;transition:all .2s}
+    .chip.active{background:linear-gradient(135deg, rgba(34,211,238,.15), rgba(167,139,250,.15));border-color:rgba(34,211,238,.35);color:#e5f9ff}
+
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+    .card{position:relative;background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:transform .2s, box-shadow .2s}
+    .card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+    .thumb{height:120px;background:linear-gradient(120deg, rgba(34,211,238,.25), rgba(167,139,250,.25)), linear-gradient(180deg, #0b1324, #0b1324);display:flex;align-items:flex-end;justify-content:flex-start;padding:12px}
+    .thumb span{font-size:.8rem;background:rgba(0,0,0,.3);padding:6px 10px;border:1px solid var(--border);border-radius:999px}
+    .card-body{padding:14px}
+    .title{font-weight:700;margin:0 0 6px;font-size:1.0rem}
+    .desc{color:#a3b2c7;font-size:.9rem;line-height:1.5;margin:0 0 10px}
+    .meta{display:flex;gap:10px;align-items:center;color:#8aa0b6;font-size:.85rem}
+    .badge{padding:6px 10px;border-radius:999px;background:rgba(52,211,153,.15);color:#bbf7d0;border:1px solid rgba(52,211,153,.35)}
+    .enroll{margin-left:auto;background:linear-gradient(135deg, var(--brand), var(--brand-2));border:none;color:#0b1220;padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+
+    .pagination{display:flex;justify-content:center;gap:8px;margin:22px 0}
+    .page-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .page-btn.active{background:linear-gradient(135deg, rgba(34,211,238,.2), rgba(167,139,250,.2));border-color:rgba(34,211,238,.4)}
+
+    .footer{margin:28px 0 10px;color:#8aa0b6;font-size:.9rem;text-align:center}
+
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.6);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal.open{display:flex}
+    .modal-card{max-width:640px;width:100%;background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+    .modal-body{padding:16px}
+    .close{background:transparent;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:10px;cursor:pointer}
+
+    @media (max-width: 960px){
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .toolbar{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 640px){
+      header{flex-direction:column;align-items:flex-start}
+      .grid{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Explore Courses</h1>
+          <div class="muted">Browse 50 hand-picked courses across tech, design, and business</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <input id="search" class="input" placeholder="Search courses, topics, instructors..." />
+      <select id="category" class="select">
+        <option value="all">All categories</option>
+      </select>
+      <select id="sort" class="select">
+        <option value="featured">Sort: Featured</option>
+        <option value="rating">Sort: Highest Rated</option>
+        <option value="new">Sort: Newest</option>
+        <option value="length">Sort: Shortest</option>
+      </select>
+    </section>
+
+    <div class="chips" id="chips"></div>
+
+    <section id="grid" class="grid"></section>
+    <div id="pagination" class="pagination"></div>
+
+    <div class="footer">Made with ❤️ — demo catalog with 50 sample courses</div>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <strong id="modalTitle">Course details</strong>
+        <button class="close" id="modalClose">Close</button>
+      </div>
+      <div class="modal-body">
+        <div id="modalContent" class="muted"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const categories = [
+      'Web Development','Data Science','Design','Mobile','Cloud','AI & ML','Marketing','Business','Cybersecurity','Product'
+    ];
+
+    // Generate 50 demo courses
+    const courses = Array.from({length:50}).map((_,i)=>{
+      const cat = categories[i % categories.length];
+      const levels = ['Beginner','Intermediate','Advanced'];
+      const level = levels[i % 3];
+      const rating = +(4 + ((i*13)%10)/10).toFixed(1); // 4.0 - 4.9
+      const hours = 3 + (i % 12); // 3 - 14 hours
+      const students = 200 + i*37;
+      return {
+        id: i+1,
+        title: `${cat} Essentials ${i+1}`,
+        category: cat,
+        level,
+        rating,
+        hours,
+        students,
+        instructor: ['Alex Johnson','Priya Patel','Chen Li','Maria Gomez','Ethan Brown'][i%5],
+        tags: [cat.split(' ')[0], level, hours < 8 ? 'Short' : 'Comprehensive'],
+        featured: i % 7 === 0,
+        createdAt: Date.now() - i*86400000,
+        description: `Master the fundamentals of ${cat.toLowerCase()} with hands-on projects. Perfect for ${level.toLowerCase()} learners looking to level up in ${cat.toLowerCase()}.`
+      }
+    });
+
+    // UI State
+    let state = { q:'', category:'all', sort:'featured', page:1, perPage:9, tag:null };
+
+    // Elements
+    const gridEl = document.getElementById('grid');
+    const searchEl = document.getElementById('search');
+    const categoryEl = document.getElementById('category');
+    const sortEl = document.getElementById('sort');
+    const chipsEl = document.getElementById('chips');
+    const paginationEl = document.getElementById('pagination');
+
+    // Populate category select
+    function initCategories(){
+      categories.forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c; categoryEl.appendChild(opt);
+      })
+    }
+
+    // Build tag chips from common tags
+    function initChips(){
+      const common = ['Beginner','Intermediate','Advanced','Short','Comprehensive'];
+      common.forEach(t=>{
+        const b = document.createElement('button');
+        b.className = 'chip'; b.textContent = t; b.dataset.tag = t;
+        b.addEventListener('click',()=>{
+          state.tag = state.tag === t ? null : t; state.page=1; render();
+        });
+        chipsEl.appendChild(b);
+      })
+    }
+
+    function applyFilters(list){
+      let res = [...list];
+      const q = state.q.trim().toLowerCase();
+      if(q){
+        res = res.filter(c =>
+          c.title.toLowerCase().includes(q) ||
+          c.category.toLowerCase().includes(q) ||
+          c.instructor.toLowerCase().includes(q)
+        );
+      }
+      if(state.category !== 'all'){
+        res = res.filter(c => c.category === state.category);
+      }
+      if(state.tag){
+        res = res.filter(c => c.tags.includes(state.tag));
+      }
+      switch(state.sort){
+        case 'rating': res.sort((a,b)=> b.rating - a.rating); break;
+        case 'new': res.sort((a,b)=> b.createdAt - a.createdAt); break;
+        case 'length': res.sort((a,b)=> a.hours - b.hours); break;
+        default: res.sort((a,b)=> (b.featured - a.featured) || b.rating - a.rating);
+      }
+      return res;
+    }
+
+    function paginate(list){
+      const start = (state.page-1)*state.perPage;
+      return list.slice(start, start + state.perPage);
+    }
+
+    function renderCards(list){
+      gridEl.innerHTML = '';
+      list.forEach(c => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="thumb"><span>${c.category}</span></div>
+          <div class="card-body">
+            <h3 class="title">${c.title}</h3>
+            <p class="desc">${c.description}</p>
+            <div class="meta">
+              <span class="badge">${c.level}</span>
+              <span>⭐ ${c.rating}</span>
+              <span>⏱ ${c.hours}h</span>
+              <button class="enroll" data-id="${c.id}">Details</button>
+            </div>
+          </div>
+        `;
+        card.querySelector('.enroll').addEventListener('click',()=> openModal(c));
+        gridEl.appendChild(card);
+      });
+    }
+
+    function renderPagination(total){
+      const pages = Math.ceil(total / state.perPage);
+      paginationEl.innerHTML = '';
+      for(let p=1;p<=pages;p++){
+        const btn = document.createElement('button');
+        btn.className = 'page-btn' + (p===state.page ? ' active':'');
+        btn.textContent = p;
+        btn.addEventListener('click',()=>{ state.page=p; render(); });
+        paginationEl.appendChild(btn);
+      }
+      if(pages===0){ paginationEl.innerHTML = '<span class="muted">No results</span>'; }
+    }
+
+    function renderChipsActive(){
+      [...chipsEl.children].forEach(ch => {
+        ch.classList.toggle('active', ch.dataset.tag === state.tag);
+      });
+    }
+
+    function render(){
+      const filtered = applyFilters(courses);
+      const pageItems = paginate(filtered);
+      renderChipsActive();
+      renderCards(pageItems);
+      renderPagination(filtered.length);
+    }
+
+    // Modal
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    const modalClose = document.getElementById('modalClose');
+
+    function openModal(c){
+      modalTitle.textContent = c.title;
+      modalContent.innerHTML = `
+        <p style="margin:0 0 10px;color:#cbd5e1">${c.description}</p>
+        <ul style="list-style:none;padding:0;margin:0;color:#9fb1c8">
+          <li>Category: <strong>${c.category}</strong></li>
+          <li>Instructor: <strong>${c.instructor}</strong></li>
+          <li>Level: <strong>${c.level}</strong></li>
+          <li>Rating: <strong>${c.rating}</strong></li>
+          <li>Length: <strong>${c.hours} hours</strong></li>
+          <li>Students: <strong>${c.students.toLocaleString()}</strong></li>
+        </ul>
+      `;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden','true');
+    }
+    modal.addEventListener('click',(e)=>{ if(e.target===modal) closeModal(); });
+    modalClose.addEventListener('click', closeModal);
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+    // Wire controls
+    searchEl.addEventListener('input', e=>{ state.q = e.target.value; state.page=1; render(); });
+    categoryEl.addEventListener('change', e=>{ state.category = e.target.value; state.page=1; render(); });
+    sortEl.addEventListener('change', e=>{ state.sort = e.target.value; state.page=1; render(); });
+
+    // Init
+    initCategories();
+    initChips();
+    render();
+  </script>
+</body>
 </html>
